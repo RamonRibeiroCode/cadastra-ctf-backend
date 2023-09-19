@@ -11,7 +11,8 @@
     "lint": "eslint . --ext .ts --fix --ignore-pattern node_modules/",
     "style": "prettier --write \"src/**/*.ts\"",
     "pre-commit": "yarn lint && yarn style",
-    "migrate": "npx prisma push"
+    "db:migrate": "npx prisma migrate dev && npx prisma generate",
+    "db:push": "npx prisma db push"
   },
   "dependencies": {
     "@prisma/client": "5.3.1",

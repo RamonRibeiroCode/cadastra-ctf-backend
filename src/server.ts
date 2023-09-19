@@ -1,17 +1,18 @@
-import express, { Router, type Request, type Response } from 'express';
+import { app } from './app';
+import { prisma } from './prisma.client';
 
-const app = express();
+const main = async (): Promise<void> => {
+  app.listen(3333, () => {
+    console.log('server running on port 3333');
+  });
+};
 
-const route = Router();
-
-app.use(express.json());
-
-route.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'hello world with Typescript' });
-});
-
-app.use(route);
-
-app.listen(3333, () => {
-  console.log('server running on port 3333');
-});
+main()
+  .then(async () => {
+    await prisma.$connect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
