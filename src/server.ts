@@ -1,15 +1,17 @@
-import express, { Router, type Request, type Response } from 'express'
+import express, { Router, type Request, type Response } from 'express';
 
-const app = express()
+const app = express();
 
-const route = Router()
+const route = Router();
 
-app.use(express.json())
+app.use(express.json());
 
 route.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'hello world with Typescript' })
-})
+  res.json({ message: 'hello world with Typescript' });
+});
 
-app.use(route)
+app.use(route);
 
-app.listen(3333, () => { console.log('server running on port 3333') })
+app.listen(3333, () => {
+  console.log('server running on port 3333');
+});
