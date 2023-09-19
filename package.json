@@ -10,7 +10,8 @@
     "prepare": "husky install",
     "lint": "eslint . --ext .ts --fix --ignore-pattern node_modules/",
     "style": "prettier --write \"src/**/*.ts\"",
-    "pre-commit": "yarn lint && yarn style"
+    "pre-commit": "yarn lint && yarn style",
+    "migrate": "npx prisma push"
   },
   "dependencies": {
     "@prisma/client": "5.3.1",
