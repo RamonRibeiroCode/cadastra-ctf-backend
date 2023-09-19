@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  email String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+  avatar String @db.VarChar(255)
+  points Int
+  role Role @default(USER)
+  activities Activity[]
+  challenges Scoreboard[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Challenge {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  description String @db.Text
+  difficult Difficult @default(EASY)
+  flags Flag[]
+  users Scoreboard[]
+  releaseAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Flag {
+  id Int @id @default(autoincrement())
+  flag String @unique @db.VarChar(255)
+  difficult Difficult @default(EASY)
+  points Int
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  challengeId Int
+  activities Activity[]
+}
+
+model Activity {
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  flag Flag @relation(fields: [flagId], references: [id])
+  flagId Int
+  executionTime Int //seconds
+
+  @@id([userId, flagId])
+}
+
+model Scoreboard {
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  challengeId Int
+  executionTime Int //seconds
+
+  @@id([userId, challengeId])
+}
+
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Difficult {
+  EASY
+  MEDIUM
+  HARD
+  INSANE
+}
