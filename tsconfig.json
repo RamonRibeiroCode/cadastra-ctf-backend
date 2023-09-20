@@ -10,7 +10,9 @@
       "@controllers/*": ["controllers/*"],
       "@routes/*": ["routes/*"],
       "@services/*": ["services/*"],
-      "@errors/*": ["errors/*"]
+      "@errors/*": ["errors/*"],
+      "@providers/*": ["providers/*"],
+      "@config/*": ["config/*"]
     },
     "esModuleInterop": true,
     "experimentalDecorators": true,
