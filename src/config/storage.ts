@@ -27,7 +27,7 @@ export const storageConfig = {
           const hash = crypto.randomBytes(8).toString('hex');
           const name = `mtctf-${hash}-${file.originalname}`;
 
-          return callback(null, name);
+          callback(null, name);
         },
       }),
 
@@ -41,10 +41,11 @@ export const storageConfig = {
         const { originalname } = file;
 
         if (originalname.includes('adtns')) {
-          return callback(null, false);
+          callback(null, false);
+          return;
         }
 
-        return callback(null, true);
+        callback(null, true);
       },
     },
   },
