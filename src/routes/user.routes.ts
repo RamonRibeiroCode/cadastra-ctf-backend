@@ -7,5 +7,6 @@ const usersRoutes = Router();
 const UserController = new UserControllerClass();
 
 usersRoutes.get('/', UserController.index);
+usersRoutes.post('/register', UserController.register.bind(UserController));
 
 export { usersRoutes };
