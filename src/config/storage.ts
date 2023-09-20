@@ -3,11 +3,15 @@ import { type Request } from 'express';
 import multer, { type FileFilterCallback } from 'multer';
 import path from 'path';
 
+import { AppError } from '@errors/AppError';
+
 const destination = path.resolve(__dirname, '..', '..', 'temp');
 
 interface IFile {
   originalname: string;
 }
+
+const imageExtensions = ['.jpg', '.jpeg', '.png', '.svg', '.webp'];
 
 export const storageConfig = {
   driver: process.env.STORAGE_DRIVER ?? 'disk',
@@ -25,7 +29,7 @@ export const storageConfig = {
 
         filename(request, file, callback) {
           const hash = crypto.randomBytes(8).toString('hex');
-          const name = `mtctf-${hash}-${file.originalname}`;
+          const name = `m3ctf-${hash}-${file.originalname}`;
 
           callback(null, name);
         },
@@ -39,6 +43,11 @@ export const storageConfig = {
         callback: FileFilterCallback
       ): void {
         const { originalname } = file;
+        const ext = path.extname(originalname);
+
+        if (!imageExtensions.includes(ext)) {
+          callback(new AppError('Formato de imagem inválido', 400));
+        }
 
         if (originalname.includes('adtns')) {
           callback(null, false);

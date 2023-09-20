@@ -12,7 +12,9 @@
       "@services/*": ["services/*"],
       "@errors/*": ["errors/*"],
       "@providers/*": ["providers/*"],
-      "@config/*": ["config/*"]
+      "@config/*": ["config/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@schemas/*": ["schemas/*"]
     },
     "esModuleInterop": true,
     "experimentalDecorators": true,
