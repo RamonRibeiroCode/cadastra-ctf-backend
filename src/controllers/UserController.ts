@@ -1,12 +1,12 @@
 import { type Request, type Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../prisma.client';
-import { GenerateHashService } from '@services/GenerateHashService';
 import { StorageProvider } from '@providers/StorageProvider';
+import { HashProvider } from '@providers/HashProvider';
 import { AppError } from '@errors/AppError';
 
 export class UserController {
-  private readonly generateHashService = new GenerateHashService();
+  private readonly hashProvider = new HashProvider();
   private readonly storageProvider = new StorageProvider();
 
   public async index(_: Request, response: Response): Promise<void> {
@@ -17,7 +17,7 @@ export class UserController {
   public async register(request: Request, response: Response): Promise<void> {
     const { name, email, password } = request.body;
     const avatar = request.file?.filename ?? '';
-    const passwordHash = await this.generateHashService.execute(password);
+    const passwordHash = await this.hashProvider.generateHash(password);
 
     try {
       const user = await prisma.user.create({
