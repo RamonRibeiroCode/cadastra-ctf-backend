@@ -50,7 +50,6 @@ export class AuthController {
     };
 
     const token = sign(formatedUser, secret, {
-      algorithm: 'RS256',
       expiresIn: expiration,
     });
 
