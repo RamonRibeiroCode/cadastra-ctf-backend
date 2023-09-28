@@ -20,7 +20,7 @@ export class AuthController {
         role: true,
         name: true,
         points: true,
-        avatar: true,
+        avatarUrl: true,
       },
       where: { email },
     });
@@ -45,7 +45,7 @@ export class AuthController {
       name: user.name,
       email: user.email,
       role: user.role,
-      avatar: user.avatar,
+      avatar: user.avatarUrl,
       points: user.points,
     };
 

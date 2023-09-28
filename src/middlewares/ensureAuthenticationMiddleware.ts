@@ -8,14 +8,8 @@ interface IPayload {
   sub: string;
 }
 
-export interface RequestWithUser extends Request {
-  user: {
-    id: number;
-  };
-}
-
 export async function ensureAuthenticated(
-  request: RequestWithUser,
+  request: Request,
   response: Response,
   next: NextFunction
 ): Promise<void> {

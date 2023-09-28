@@ -47,4 +47,28 @@ export class UserController {
 
     response.status(201).json({ message: 'Usuário registrado com sucesso!' });
   }
+
+  public async update(request: Request, response: Response): Promise<void> {
+    const userId = request.user.id;
+
+    const { name } = request.body;
+    const avatar = request.file?.filename ?? '';
+
+    try {
+      if (avatar !== '') {
+        const user = await prisma.user.findUnique({
+          select: { avatar: true },
+          where: { id: userId },
+        });
+        await Promise.all([
+          this.storageProvider.deleteFile(user?.avatar ?? ''),
+          this.storageProvider.saveFile(avatar),
+          prisma.user.update({ where: { id: userId }, data: { avatar } }),
+        ]);
+      }
+      await prisma.user.update({ where: { id: userId }, data: { name } });
+    } catch (error) {
+      throw new AppError('Falha ao atualizar usuário.', 500);
+    }
+  }
 }

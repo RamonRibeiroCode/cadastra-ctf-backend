@@ -13,6 +13,7 @@ export class StorageProvider {
   }
 
   async deleteFile(file: string): Promise<void> {
+    if (file === '') return;
     const { uploads } = storageConfig.folders;
     const filePath = path.resolve(uploads, file);
 

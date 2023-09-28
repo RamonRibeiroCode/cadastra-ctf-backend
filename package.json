@@ -6,7 +6,7 @@
   "author": "arthur_cardoso_ext <arthur_cardoso_ext@carrefour.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --files --transpile-only --ignore-watch node_modules --no-notify src/server.ts",
     "prepare": "husky install",
     "lint": "eslint . --ext .ts --fix --ignore-pattern node_modules/",
     "style": "prettier --write \"src/**/*.ts\"",
