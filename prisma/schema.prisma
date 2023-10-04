@@ -28,6 +28,8 @@ model Challenge {
   id Int @id @default(autoincrement())
   name String @db.VarChar(255)
   description String @db.Text
+  image String? @db.VarChar(255)
+  url String @db.VarChar(255)
   difficult Difficult @default(EASY)
   flags Flag[]
   users Scoreboard[]

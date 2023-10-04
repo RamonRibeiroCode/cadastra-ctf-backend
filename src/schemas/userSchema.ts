@@ -24,4 +24,14 @@ export const userSchema = {
         .min(6, 'A senha precisa ter no mínimo 6 caracteres.'),
     }),
   }),
+  update: z.object({
+    body: z.object({
+      name: z
+        .string({
+          required_error: 'O campo nome é obrigatório.',
+        })
+        .trim()
+        .min(1, 'O campo nome é obrigatório.'),
+    }),
+  }),
 };

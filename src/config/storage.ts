@@ -49,7 +49,7 @@ export const storageConfig = {
           callback(new AppError('Formato de imagem inválido', 400));
         }
 
-        if (originalname.includes('adtns')) {
+        if (originalname.includes('m3ctf')) {
           callback(null, false);
           return;
         }
