@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { type Request } from 'express';
+import slugify from 'slugify';
 import multer, { type FileFilterCallback } from 'multer';
 import path from 'path';
 
@@ -29,7 +30,7 @@ export const storageConfig = {
 
         filename(request, file, callback) {
           const hash = crypto.randomBytes(8).toString('hex');
-          const name = `m3ctf-${hash}-${file.originalname}`;
+          const name = `m3ctf-${hash}-${slugify(file.originalname)}`;
 
           callback(null, name);
         },

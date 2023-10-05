@@ -4,6 +4,7 @@ import express, {
   type NextFunction,
 } from 'express';
 import 'express-async-errors';
+import cors from 'cors';
 
 import { router } from '@routes/routes';
 import { AppError } from '@errors/AppError';
@@ -14,6 +15,7 @@ const { uploads } = storageConfig.folders;
 const app = express();
 app.use(express.json());
 
+app.use(cors());
 app.use(router);
 app.disable('x-powered-by');
 app.use('/files', express.static(uploads));
