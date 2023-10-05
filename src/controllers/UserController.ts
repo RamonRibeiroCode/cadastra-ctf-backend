@@ -71,4 +71,18 @@ export class UserController {
       throw new AppError('Falha ao atualizar usuário.', 500);
     }
   }
+
+  public async showProfile(
+    request: Request,
+    response: Response
+  ): Promise<void> {
+    const userId = request.user.id;
+
+    const user = await prisma.user.findUnique({
+      select: { name: true, email: true, avatarUrl: true, points: true },
+      where: { id: userId },
+    });
+
+    response.json(user);
+  }
 }

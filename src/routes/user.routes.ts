@@ -13,6 +13,7 @@ const upload = multer(storageConfig.options.multer);
 const UserController = new UserControllerClass();
 
 usersRoutes.get('/', UserController.index);
+usersRoutes.get('/profile', ensureAuthenticated, UserController.showProfile);
 usersRoutes.post(
   '/register',
   upload.single('avatar'),

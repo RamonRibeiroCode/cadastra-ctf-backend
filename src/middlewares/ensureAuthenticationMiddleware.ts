@@ -5,7 +5,7 @@ import { authConfig } from '@config/auth';
 import { AppError } from '@errors/AppError';
 
 interface IPayload {
-  sub: string;
+  id: number;
 }
 
 export async function ensureAuthenticated(
@@ -24,7 +24,7 @@ export async function ensureAuthenticated(
   const [, token] = authHeader.split(' ');
 
   try {
-    const { sub: userId } = verify(token, secret, {
+    const { id: userId } = verify(token, secret, {
       ignoreExpiration: false,
     }) as IPayload;
 
