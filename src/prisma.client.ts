@@ -6,7 +6,11 @@ export const prisma = new PrismaClient().$extends({
       avatarUrl: {
         needs: { avatar: true },
         compute(user) {
-          return `http://localhost:3333/files/${user.avatar}`;
+          return user.avatar !== null && user.avatar !== ''
+            ? `${
+                process.env.STORAGE_LOCATION ?? 'http://localhost:3333/files'
+              }/${user.avatar}`
+            : null;
         },
       },
     },
