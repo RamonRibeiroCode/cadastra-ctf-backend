@@ -13,6 +13,8 @@ export const validate =
       next();
     } catch (err) {
       const error = err as ZodError;
-      return res.status(400).json({ message: error.issues });
+      return res
+        .status(400)
+        .json({ message: 'Dados inválidos', fields: error.issues });
     }
   };
