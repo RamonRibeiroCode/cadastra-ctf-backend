@@ -39,13 +39,13 @@ export class UserController {
       }
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new AppError('Usuário já cadastrado.', 400);
+        throw new AppError('Usuário já cadastrado', 400);
       } else {
-        throw new AppError('Falha ao salvar avatar.', 500);
+        throw new AppError('Falha ao salvar avatar', 500);
       }
     }
 
-    response.status(201).json({ message: 'Usuário registrado com sucesso!' });
+    response.status(201).json({ message: 'Usuário registrado com sucesso' });
   }
 
   public async update(request: Request, response: Response): Promise<void> {
@@ -68,7 +68,7 @@ export class UserController {
       }
       await prisma.user.update({ where: { id: userId }, data: { name } });
     } catch (error) {
-      throw new AppError('Falha ao atualizar usuário.', 500);
+      throw new AppError('Falha ao atualizar usuário', 500);
     }
   }
 
@@ -82,6 +82,9 @@ export class UserController {
       select: { name: true, email: true, avatarUrl: true, points: true },
       where: { id: userId },
     });
+
+    if (user === null)
+      response.status(404).json({ message: 'Usuário não encontrado' });
 
     response.json(user);
   }
