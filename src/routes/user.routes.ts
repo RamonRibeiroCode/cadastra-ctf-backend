@@ -25,7 +25,7 @@ usersRoutes.put(
   upload.single('avatar'),
   validate(userSchema.update),
   ensureAuthenticated,
-  UserController.update
+  UserController.update.bind(UserController)
 );
 
 export { usersRoutes };

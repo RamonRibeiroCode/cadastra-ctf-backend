@@ -60,13 +60,21 @@ export class UserController {
           select: { avatar: true },
           where: { id: userId },
         });
+
         await Promise.all([
           this.storageProvider.deleteFile(user?.avatar ?? ''),
           this.storageProvider.saveFile(avatar),
           prisma.user.update({ where: { id: userId }, data: { avatar } }),
         ]);
       }
-      await prisma.user.update({ where: { id: userId }, data: { name } });
+
+      const updateUser = await prisma.user.update({
+        where: { id: userId },
+        data: { name },
+        select: { name: true, email: true, avatarUrl: true, points: true },
+      });
+
+      response.json(updateUser);
     } catch (error) {
       throw new AppError('Falha ao atualizar usuário', 500);
     }
