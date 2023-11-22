@@ -54,7 +54,6 @@ export class ChallengeController {
 
     try {
       // TODO: VALIDATE DUPLICATED FLAGS NAMES
-
       let challenge = await prisma.challenge.create({
         data: {
           name,
@@ -95,14 +94,68 @@ export class ChallengeController {
   }
 
   public async submitFlag(request: Request, response: Response): Promise<void> {
-    // TODO: VALIDATE FLAG NAME
-    // const { flagName } = request.body;
+    const { flagName } = request.body;
     const { id } = request.params;
-
-    // TODO: VALIDATE FIRST BLOOD
-    const isFirstBlood = true;
-
     const userId = request.user.id;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError('Usuario não encontrado', 404);
+    }
+
+    const challenge = await prisma.challenge.findUnique({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        users: true,
+        flags: {
+          include: {
+            activities: true,
+          },
+        },
+      },
+    });
+
+    if (!challenge) {
+      throw new AppError('Desafio não encontrado', 404);
+    }
+
+    const flags = challenge.flags;
+
+    const flagMatch = flags.find((flag) => flag.flag === flagName);
+
+    if (!flagMatch) {
+      throw new AppError('Nome da flag incorreta', 404);
+    }
+
+    const alreadyRedeemed = flagMatch.activities.some(
+      (activity) => activity.userId === userId
+    );
+
+    if (alreadyRedeemed) {
+      throw new AppError('Você já resgatou essa flag', 400);
+    }
+
+    const howManyFlagsWereRedeemed = flags.reduce((accumulator, flag) => {
+      const flagWasRedeemed = flag.activities.some(
+        (activity) => activity.userId === userId
+      );
+
+      if (flagWasRedeemed) {
+        return accumulator + 1;
+      }
+
+      return accumulator;
+    }, 0);
+
+    const isSubmitingLastFlag = flags.length === howManyFlagsWereRedeemed + 1;
+    const isFirstBlood = challenge.users.length === 0 && isSubmitingLastFlag;
 
     try {
       if (isFirstBlood) {
@@ -116,11 +169,41 @@ export class ChallengeController {
         });
       }
 
-      // TODO: ADD IN ACTIVITY
+      if (isSubmitingLastFlag) {
+        // TODO: CALCULATE EXEC TIME
+        await prisma.scoreboard.create({
+          data: { userId, challengeId: Number(id), executionTime: 10 },
+        });
+      }
 
-      // TODO: ADD IN SCOREBOARD IF ALL FLAGS WERE CAPTURED
+      // TODO: CALCULATE EXEC TIME
+      await prisma.activity.create({
+        data: { userId, flagId: flagMatch.id, executionTime: 10 },
+      });
 
-      response.status(201).json({});
+      let pointsToReedem = flagMatch.points;
+
+      if (isFirstBlood) {
+        const allFlagsPoints = flags.reduce((accumulator, flag) => {
+          return accumulator + flag.points;
+        }, 0);
+
+        // First blood gets a 10% bonus
+        const bonusPoints = allFlagsPoints * 0.1;
+
+        pointsToReedem = pointsToReedem + bonusPoints;
+      }
+
+      await prisma.user.update({
+        data: {
+          points: user.points + pointsToReedem,
+        },
+        where: {
+          id: userId,
+        },
+      });
+
+      response.status(201).json({ message: 'Flag resgatada com sucesso' });
     } catch (error) {
       throw new AppError('Falha ao cadastrar o desafio', 500);
     }
