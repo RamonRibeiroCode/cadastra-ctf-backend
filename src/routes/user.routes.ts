@@ -21,7 +21,7 @@ usersRoutes.post(
   UserController.register.bind(UserController)
 );
 usersRoutes.put(
-  '/profile/update',
+  '/profile',
   upload.single('avatar'),
   validate(userSchema.update),
   ensureAuthenticated,
