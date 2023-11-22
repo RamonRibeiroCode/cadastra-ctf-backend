@@ -11,18 +11,19 @@ datasource db {
 }
 
 model User {
-  id         Int          @id @default(autoincrement())
-  name       String       @db.VarChar(255)
-  email      String       @unique @db.VarChar(255)
-  password   String       @db.VarChar(255)
-  avatar     String?      @db.VarChar(255)
-  points     Int
-  role       Role         @default(USER)
-  activities Activity[]
-  challenges Scoreboard[]
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  Challenge  Challenge[]
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  email       String       @unique @db.VarChar(255)
+  password    String       @db.VarChar(255)
+  avatar      String?      @db.VarChar(255)
+  points      Int
+  role        Role         @default(USER)
+  activities  Activity[]
+  challenges  Scoreboard[]
+  firstBloods Challenge[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Challenge {

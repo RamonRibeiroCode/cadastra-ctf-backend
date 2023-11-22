@@ -9,11 +9,6 @@ export class UserController {
   private readonly hashProvider = new HashProvider();
   private readonly storageProvider = new StorageProvider();
 
-  public async index(_: Request, response: Response): Promise<void> {
-    const users = await prisma.user.findMany();
-    response.status(200).json(users);
-  }
-
   public async register(request: Request, response: Response): Promise<void> {
     const { name, email, password } = request.body;
     const avatar = request.file?.filename ?? '';
@@ -95,5 +90,36 @@ export class UserController {
       response.status(404).json({ message: 'Usuário não encontrado' });
 
     response.json(user);
+  }
+
+  public async scoreboard(_: Request, response: Response): Promise<void> {
+    const usersScore = await prisma.user.findMany({
+      select: {
+        name: true,
+        points: true,
+        avatarUrl: true,
+        firstBloods: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        points: 'desc',
+      },
+    });
+
+    const allFlags = await prisma.flag.findMany();
+    const allFlagPoints = allFlags.reduce((accumulator, flag) => {
+      return accumulator + flag.points;
+    }, 0);
+    const maxPoints = allFlagPoints * 1.1;
+
+    const scoreboard = usersScore.map((userScore) => ({
+      ...userScore,
+      firstBloods: userScore.firstBloods.length,
+    }));
+
+    response.status(200).json({ scoreboard, maxPoints });
   }
 }

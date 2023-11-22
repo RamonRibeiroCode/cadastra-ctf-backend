@@ -12,7 +12,6 @@ const upload = multer(storageConfig.options.multer);
 
 const UserController = new UserControllerClass();
 
-usersRoutes.get('/', UserController.index);
 usersRoutes.get('/profile', ensureAuthenticated, UserController.showProfile);
 usersRoutes.post(
   '/register',
@@ -26,6 +25,12 @@ usersRoutes.put(
   validate(userSchema.update),
   ensureAuthenticated,
   UserController.update.bind(UserController)
+);
+
+usersRoutes.get(
+  '/scoreboard',
+  ensureAuthenticated,
+  UserController.scoreboard.bind(UserController)
 );
 
 export { usersRoutes };
