@@ -1,9 +1,29 @@
 import { type Request, type Response } from 'express';
-import { Prisma } from '@prisma/client';
+import { type $Enums, Prisma } from '@prisma/client';
 import { prisma } from '../prisma.client';
 import { StorageProvider } from '@providers/StorageProvider';
 import { HashProvider } from '@providers/HashProvider';
 import { AppError } from '@errors/AppError';
+
+type Activity = {
+  user: {
+    name: string;
+    avatarUrl: string | null;
+    points: number;
+  };
+  flag: {
+    challenge: {
+      name: string;
+    };
+    points: number;
+    difficulty: $Enums.Difficulty;
+  };
+} & {
+  createdAt: Date;
+  userId: number;
+  flagId: number;
+  executionTime: number;
+};
 
 export class UserController {
   private readonly hashProvider = new HashProvider();
@@ -121,5 +141,57 @@ export class UserController {
     }));
 
     response.status(200).json({ scoreboard, maxPoints });
+  }
+
+  public async maxPoints(_: Request, response: Response): Promise<void> {
+    const allFlags = await prisma.flag.findMany();
+    const allFlagPoints = allFlags.reduce((accumulator, flag) => {
+      return accumulator + flag.points;
+    }, 0);
+    const maxPoints = allFlagPoints * 1.1;
+
+    response.status(200).json({ maxPoints });
+  }
+
+  public async activities(_: Request, response: Response): Promise<void> {
+    const flags = await prisma.flag.findMany({
+      include: {
+        activities: {
+          include: {
+            flag: {
+              select: {
+                points: true,
+                difficulty: true,
+                challenge: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+            user: {
+              select: {
+                avatarUrl: true,
+                name: true,
+                points: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const flagsActivities: Activity[] = [];
+
+    flags.forEach((flag) => flagsActivities.push(...flag.activities));
+
+    flagsActivities.sort((activityA, activityB) => {
+      const activityADate = new Date(activityA.createdAt);
+      const activityBDate = new Date(activityB.createdAt);
+
+      return Number(activityBDate) - Number(activityADate);
+    });
+
+    response.status(200).json({ activities: flagsActivities });
   }
 }

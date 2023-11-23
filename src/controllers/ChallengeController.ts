@@ -6,45 +6,80 @@ import { AppError } from '@errors/AppError';
 export class ChallengeController {
   private readonly storageProvider = new StorageProvider();
 
-  public async index(_: Request, response: Response): Promise<void> {
+  public async index(request: Request, response: Response): Promise<void> {
+    const userId = request.user.id;
+
     const challenges = await prisma.challenge.findMany({
       include: {
         firstBlood: { select: { avatarUrl: true } },
         flags: { select: { points: true } },
+        scoreboard: true,
       },
     });
 
-    response.status(200).json(challenges);
+    const challengesWithCompletedLabel = challenges.map((challenge) => ({
+      ...challenge,
+      wasCompletedByUser: challenge.scoreboard.some(
+        (user) => user.userId === userId
+      ),
+    }));
+
+    response.status(200).json(challengesWithCompletedLabel);
   }
 
   public async show(request: Request, response: Response): Promise<void> {
     const { id } = request.params;
 
-    try {
-      const challenge = await prisma.challenge.findUnique({
-        where: { id: Number(id) },
-        include: {
-          users: true,
-          firstBlood: {
-            select: {
-              avatarUrl: true,
-              name: true,
+    const challenge = await prisma.challenge.findUnique({
+      where: { id: Number(id) },
+      include: {
+        scoreboard: {
+          select: {
+            user: {
+              select: {
+                name: true,
+                avatarUrl: true,
+              },
             },
+            executionTime: true,
           },
-          flags: {
-            select: {
-              points: true,
-              difficulty: true,
-              activities: true,
+        },
+        firstBlood: {
+          select: {
+            avatarUrl: true,
+            name: true,
+          },
+        },
+        flags: {
+          select: {
+            points: true,
+            difficulty: true,
+            activities: {
+              select: {
+                createdAt: true,
+                user: {
+                  select: {
+                    name: true,
+                  },
+                },
+                flag: {
+                  select: {
+                    difficulty: true,
+                    points: true,
+                  },
+                },
+              },
             },
           },
         },
-      });
+      },
+    });
 
-      response.status(201).json(challenge);
-    } catch (error) {
+    if (!challenge) {
       throw new AppError('Desafio não encontrado', 404);
     }
+
+    response.status(201).json(challenge);
   }
 
   public async create(request: Request, response: Response): Promise<void> {
@@ -113,7 +148,7 @@ export class ChallengeController {
         id: Number(id),
       },
       include: {
-        users: true,
+        scoreboard: true,
         flags: {
           include: {
             activities: true,
@@ -155,7 +190,8 @@ export class ChallengeController {
     }, 0);
 
     const isSubmitingLastFlag = flags.length === howManyFlagsWereRedeemed + 1;
-    const isFirstBlood = challenge.users.length === 0 && isSubmitingLastFlag;
+    const isFirstBlood =
+      challenge.scoreboard.length === 0 && isSubmitingLastFlag;
 
     try {
       if (isFirstBlood) {

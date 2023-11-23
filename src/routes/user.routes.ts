@@ -33,4 +33,16 @@ usersRoutes.get(
   UserController.scoreboard.bind(UserController)
 );
 
+usersRoutes.get(
+  '/max-points',
+  ensureAuthenticated,
+  UserController.maxPoints.bind(UserController)
+);
+
+usersRoutes.get(
+  '/activities',
+  ensureAuthenticated,
+  UserController.activities.bind(UserController)
+);
+
 export { usersRoutes };

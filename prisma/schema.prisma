@@ -36,7 +36,7 @@ model Challenge {
   firstBlood       User?        @relation(fields: [firstBloodUserId], references: [id])
   difficulty       Difficulty   @default(EASY)
   flags            Flag[]
-  users            Scoreboard[]
+  scoreboard       Scoreboard[]
   releaseAt        DateTime
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -58,6 +58,8 @@ model Activity {
   flag          Flag @relation(fields: [flagId], references: [id])
   flagId        Int
   executionTime Int // Seconds
+
+  createdAt DateTime @default(now())
 
   @@id([userId, flagId])
 }
