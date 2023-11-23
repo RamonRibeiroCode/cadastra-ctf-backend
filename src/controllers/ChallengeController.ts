@@ -59,7 +59,9 @@ export class ChallengeController {
                 createdAt: true,
                 user: {
                   select: {
+                    id: true,
                     name: true,
+                    avatarUrl: true,
                   },
                 },
                 flag: {
@@ -79,7 +81,7 @@ export class ChallengeController {
       throw new AppError('Desafio não encontrado', 404);
     }
 
-    response.status(201).json(challenge);
+    response.status(200).json(challenge);
   }
 
   public async create(request: Request, response: Response): Promise<void> {
@@ -239,7 +241,7 @@ export class ChallengeController {
         },
       });
 
-      response.status(201).json({ message: 'Flag resgatada com sucesso' });
+      response.status(200).json({ message: 'Flag resgatada com sucesso' });
     } catch (error) {
       throw new AppError('Falha ao cadastrar o desafio', 500);
     }
