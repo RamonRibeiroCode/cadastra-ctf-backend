@@ -2,9 +2,11 @@ import { type Request, type Response } from 'express';
 import { StorageProvider } from '@providers/StorageProvider';
 import { prisma } from '../prisma.client';
 import { AppError } from '@errors/AppError';
+import { DayjsDateProvider } from '@providers/DayJsProvider';
 
 export class ChallengeController {
   private readonly storageProvider = new StorageProvider();
+  private readonly dateProvider = new DayjsDateProvider();
 
   public async index(request: Request, response: Response): Promise<void> {
     const userId = request.user.id;
@@ -22,6 +24,7 @@ export class ChallengeController {
       wasCompletedByUser: challenge.scoreboard.some(
         (user) => user.userId === userId
       ),
+      url: undefined,
     }));
 
     response.status(200).json(challengesWithCompletedLabel);
@@ -29,6 +32,7 @@ export class ChallengeController {
 
   public async show(request: Request, response: Response): Promise<void> {
     const { id } = request.params;
+    const userId = request.user.id;
 
     const challenge = await prisma.challenge.findUnique({
       where: { id: Number(id) },
@@ -37,6 +41,7 @@ export class ChallengeController {
           select: {
             user: {
               select: {
+                id: true,
                 name: true,
                 avatarUrl: true,
               },
@@ -81,7 +86,19 @@ export class ChallengeController {
       throw new AppError('Desafio não encontrado', 404);
     }
 
-    response.status(200).json(challenge);
+    const wasCompletedByUser = challenge.scoreboard.some(
+      (user) => user.user.id === userId
+    );
+    const challengeHasStarted = this.dateProvider.compareIfBefore(
+      new Date(challenge.releaseAt),
+      new Date()
+    );
+
+    response.status(200).json({
+      ...challenge,
+      wasCompletedByUser,
+      url: challengeHasStarted ? challenge.url : undefined,
+    });
   }
 
   public async create(request: Request, response: Response): Promise<void> {
@@ -207,16 +224,19 @@ export class ChallengeController {
         });
       }
 
+      const executionTime = this.dateProvider.compareInSeconds(
+        new Date(challenge.releaseAt),
+        new Date()
+      );
+
       if (isSubmitingLastFlag) {
-        // TODO: CALCULATE EXEC TIME
         await prisma.scoreboard.create({
-          data: { userId, challengeId: Number(id), executionTime: 10 },
+          data: { userId, challengeId: Number(id), executionTime },
         });
       }
 
-      // TODO: CALCULATE EXEC TIME
       await prisma.activity.create({
-        data: { userId, flagId: flagMatch.id, executionTime: 10 },
+        data: { userId, flagId: flagMatch.id, executionTime },
       });
 
       let pointsToReedem = flagMatch.points;
