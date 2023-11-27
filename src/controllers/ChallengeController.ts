@@ -101,6 +101,22 @@ export class ChallengeController {
     });
   }
 
+  public async delete(request: Request, response: Response): Promise<void> {
+    const { id } = request.params;
+
+    try {
+      await prisma.challenge.delete({
+        where: {
+          id: Number(id),
+        },
+      });
+    } catch (error) {
+      throw new AppError('Desafio não encontrado', 404);
+    }
+
+    response.status(200).send();
+  }
+
   public async create(request: Request, response: Response): Promise<void> {
     const { name, description, url, difficulty, flags, releaseAt } =
       request.body;

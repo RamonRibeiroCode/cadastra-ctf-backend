@@ -33,7 +33,7 @@ model Challenge {
   image            String?      @db.VarChar(255)
   url              String       @db.VarChar(255)
   firstBloodUserId Int?
-  firstBlood       User?        @relation(fields: [firstBloodUserId], references: [id])
+  firstBlood       User?        @relation(fields: [firstBloodUserId], references: [id], onDelete: Cascade)
   difficulty       Difficulty   @default(EASY)
   flags            Flag[]
   scoreboard       Scoreboard[]
@@ -47,15 +47,15 @@ model Flag {
   flag        String     @unique @db.VarChar(255)
   difficulty  Difficulty @default(EASY)
   points      Int
-  challenge   Challenge  @relation(fields: [challengeId], references: [id])
+  challenge   Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   challengeId Int
   activities  Activity[]
 }
 
 model Activity {
-  user          User @relation(fields: [userId], references: [id])
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
-  flag          Flag @relation(fields: [flagId], references: [id])
+  flag          Flag @relation(fields: [flagId], references: [id], onDelete: Cascade)
   flagId        Int
   executionTime Int // Seconds
 
@@ -65,9 +65,9 @@ model Activity {
 }
 
 model Scoreboard {
-  user          User      @relation(fields: [userId], references: [id])
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
-  challenge     Challenge @relation(fields: [challengeId], references: [id])
+  challenge     Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   challengeId   Int
   executionTime Int // Seconds
 

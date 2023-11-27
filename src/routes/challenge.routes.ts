@@ -24,6 +24,12 @@ challengeRoutes.get(
   ChallengeController.show.bind(ChallengeController)
 );
 
+challengeRoutes.delete(
+  '/:id',
+  ensureAuthenticated,
+  ChallengeController.delete.bind(ChallengeController)
+);
+
 challengeRoutes.post(
   '/',
   upload.single('image'),
