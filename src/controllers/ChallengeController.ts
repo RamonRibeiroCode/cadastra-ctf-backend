@@ -225,8 +225,8 @@ export class ChallengeController {
       }
 
       const executionTime = this.dateProvider.compareInSeconds(
-        new Date(challenge.releaseAt),
-        new Date()
+        new Date(),
+        new Date(challenge.releaseAt)
       );
 
       if (isSubmitingLastFlag) {
