@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 
 export class DayjsDateProvider {
-  compareInSeconds(startDate: Date, endDate: Date): number {
+  compareInSeconds(startDate: Date | string, endDate: Date | string): number {
     return dayjs(startDate).diff(endDate, 'seconds');
   }
 
-  compareInHours(startDate: Date, endDate: Date): number {
+  compareInHours(startDate: Date | string, endDate: Date | string): number {
     return dayjs(startDate).diff(endDate, 'hours');
   }
 
@@ -13,7 +13,7 @@ export class DayjsDateProvider {
     return dayjs().toDate();
   }
 
-  compareInDays(startDate: Date, endDate: Date): number {
+  compareInDays(startDate: Date | string, endDate: Date | string): number {
     return dayjs(startDate).diff(endDate, 'days');
   }
 
@@ -25,11 +25,11 @@ export class DayjsDateProvider {
     return dayjs().add(hours, 'hour').toDate();
   }
 
-  compareIfBefore(startDate: Date, endDate: Date): boolean {
+  compareIfBefore(startDate: Date | string, endDate: Date | string): boolean {
     return dayjs(startDate).isBefore(endDate);
   }
 
-  compareIfAfter(startDate: Date, endDate: Date): boolean {
+  compareIfAfter(startDate: Date | string, endDate: Date | string): boolean {
     return dayjs(startDate).isAfter(endDate);
   }
 }

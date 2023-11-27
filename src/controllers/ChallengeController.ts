@@ -90,7 +90,7 @@ export class ChallengeController {
       (user) => user.user.id === userId
     );
     const challengeHasStarted = this.dateProvider.compareIfBefore(
-      new Date(challenge.releaseAt),
+      challenge.releaseAt,
       new Date()
     );
 
@@ -226,7 +226,7 @@ export class ChallengeController {
 
       const executionTime = this.dateProvider.compareInSeconds(
         new Date(),
-        new Date(challenge.releaseAt)
+        challenge.releaseAt
       );
 
       if (isSubmitingLastFlag) {
