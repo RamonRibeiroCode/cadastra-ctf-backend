@@ -24,6 +24,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map(name: "user")
 }
 
 model Challenge {
@@ -40,6 +42,8 @@ model Challenge {
   releaseAt        DateTime
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
+
+  @@map(name: "challenge")
 }
 
 model Flag {
@@ -50,6 +54,8 @@ model Flag {
   challenge   Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   challengeId Int
   activities  Activity[]
+
+  @@map(name: "flag")
 }
 
 model Activity {
@@ -62,6 +68,7 @@ model Activity {
   createdAt DateTime @default(now())
 
   @@id([userId, flagId])
+  @@map(name: "activity")
 }
 
 model Scoreboard {
@@ -72,6 +79,7 @@ model Scoreboard {
   executionTime Int // Seconds
 
   @@id([userId, challengeId])
+  @@map(name: "scoreboard")
 }
 
 enum Role {
