@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE `User` (
+CREATE TABLE `user` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
@@ -10,16 +10,19 @@ CREATE TABLE `User` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `User_email_key`(`email`),
+    UNIQUE INDEX `user_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Challenge` (
+CREATE TABLE `challenge` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NOT NULL,
-    `difficult` ENUM('EASY', 'MEDIUM', 'HARD', 'INSANE') NOT NULL DEFAULT 'EASY',
+    `image` VARCHAR(255) NULL,
+    `url` VARCHAR(255) NOT NULL,
+    `firstBloodUserId` INTEGER NULL,
+    `difficulty` ENUM('EASY', 'MEDIUM', 'HARD', 'INSANE') NOT NULL DEFAULT 'EASY',
     `releaseAt` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -28,28 +31,29 @@ CREATE TABLE `Challenge` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Flag` (
+CREATE TABLE `flag` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `flag` VARCHAR(255) NOT NULL,
-    `difficult` ENUM('EASY', 'MEDIUM', 'HARD', 'INSANE') NOT NULL DEFAULT 'EASY',
+    `difficulty` ENUM('EASY', 'MEDIUM', 'HARD', 'INSANE') NOT NULL DEFAULT 'EASY',
     `points` INTEGER NOT NULL,
     `challengeId` INTEGER NOT NULL,
 
-    UNIQUE INDEX `Flag_flag_key`(`flag`),
+    UNIQUE INDEX `flag_flag_key`(`flag`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Activity` (
+CREATE TABLE `activity` (
     `userId` INTEGER NOT NULL,
     `flagId` INTEGER NOT NULL,
     `executionTime` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`userId`, `flagId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Scoreboard` (
+CREATE TABLE `scoreboard` (
     `userId` INTEGER NOT NULL,
     `challengeId` INTEGER NOT NULL,
     `executionTime` INTEGER NOT NULL,
@@ -58,16 +62,19 @@ CREATE TABLE `Scoreboard` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Flag` ADD CONSTRAINT `Flag_challengeId_fkey` FOREIGN KEY (`challengeId`) REFERENCES `Challenge`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `challenge` ADD CONSTRAINT `challenge_firstBloodUserId_fkey` FOREIGN KEY (`firstBloodUserId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Activity` ADD CONSTRAINT `Activity_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `flag` ADD CONSTRAINT `flag_challengeId_fkey` FOREIGN KEY (`challengeId`) REFERENCES `challenge`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Activity` ADD CONSTRAINT `Activity_flagId_fkey` FOREIGN KEY (`flagId`) REFERENCES `Flag`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `activity` ADD CONSTRAINT `activity_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Scoreboard` ADD CONSTRAINT `Scoreboard_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `activity` ADD CONSTRAINT `activity_flagId_fkey` FOREIGN KEY (`flagId`) REFERENCES `flag`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Scoreboard` ADD CONSTRAINT `Scoreboard_challengeId_fkey` FOREIGN KEY (`challengeId`) REFERENCES `Challenge`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `scoreboard` ADD CONSTRAINT `scoreboard_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `scoreboard` ADD CONSTRAINT `scoreboard_challengeId_fkey` FOREIGN KEY (`challengeId`) REFERENCES `challenge`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
