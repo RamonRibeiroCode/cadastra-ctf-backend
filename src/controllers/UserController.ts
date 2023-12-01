@@ -133,7 +133,7 @@ export class UserController {
     const allFlagPoints = allFlags.reduce((accumulator, flag) => {
       return accumulator + flag.points;
     }, 0);
-    const maxPoints = allFlagPoints * 1.1;
+    const maxPoints = Math.round(allFlagPoints * 1.1);
 
     const scoreboard = usersScore.map((userScore) => ({
       ...userScore,
@@ -148,7 +148,7 @@ export class UserController {
     const allFlagPoints = allFlags.reduce((accumulator, flag) => {
       return accumulator + flag.points;
     }, 0);
-    const maxPoints = allFlagPoints * 1.1;
+    const maxPoints = Math.round(allFlagPoints * 1.1);
 
     response.status(200).json({ maxPoints });
   }
