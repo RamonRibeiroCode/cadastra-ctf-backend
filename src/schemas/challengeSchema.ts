@@ -1,20 +1,20 @@
 import { z } from 'zod';
 
-const flagObject = z.object({
-  flag: z
-    .string({
-      required_error: 'O campo flag é obrigatório.',
-    })
-    .trim()
-    .min(1, 'O campo nome é obrigatório.'),
-  points: z
-    .number({
-      required_error: 'O campo points é obrigatório.',
-    })
-    .min(1, 'O campo points é obrigatório.'),
+// const flagObject = z.object({
+//   flag: z
+//     .string({
+//       required_error: 'O campo flag é obrigatório.',
+//     })
+//     .trim()
+//     .min(1, 'O campo nome é obrigatório.'),
+//   points: z
+//     .number({
+//       required_error: 'O campo points é obrigatório.',
+//     })
+//     .min(1, 'O campo points é obrigatório.'),
 
-  difficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'INSANE']),
-});
+//   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'INSANE']),
+// });
 
 export const challengeSchema = {
   create: z.object({
@@ -37,22 +37,17 @@ export const challengeSchema = {
         })
         .trim()
         .min(1, 'O campo url é obrigatório.'),
-      difficulty: z
-        .string({
-          required_error: 'O campo difficulty é obrigatório.',
-        })
-        .trim()
-        .min(1, 'O campo difficulty é obrigatório.'),
+      difficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'INSANE']),
       releaseAt: z
         .string({
           required_error: 'O campo releaseAt é obrigatório.',
         })
         .trim()
         .min(1, 'O campo releaseAt é obrigatório.'),
-      flags: z.preprocess(
-        (flags) => JSON.parse(flags as string),
-        z.array(flagObject)
-      ),
+      // flags: z.preprocess(
+      //   (flags) => JSON.parse(flags as string),
+      //   z.array(flagObject)
+      // ),
     }),
   }),
 };

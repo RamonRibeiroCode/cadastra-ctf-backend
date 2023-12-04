@@ -1,11 +1,9 @@
 import { type Request, type Response } from 'express';
-import { StorageProvider } from '@providers/StorageProvider';
 import { prisma } from '../prisma.client';
 import { AppError } from '@errors/AppError';
 import { DayjsDateProvider } from '@providers/DayJsProvider';
 
 export class ChallengeController {
-  private readonly storageProvider = new StorageProvider();
   private readonly dateProvider = new DayjsDateProvider();
 
   public async index(request: Request, response: Response): Promise<void> {
@@ -38,6 +36,9 @@ export class ChallengeController {
       where: { id: Number(id) },
       include: {
         scoreboard: {
+          orderBy: {
+            executionTime: 'asc',
+          },
           select: {
             user: {
               select: {
@@ -143,8 +144,7 @@ export class ChallengeController {
       });
 
       if (image !== '') {
-        const [, updatedChallenge] = await Promise.all([
-          this.storageProvider.saveFile(image),
+        const [updatedChallenge] = await Promise.all([
           prisma.challenge.update({
             where: { id: challenge.id },
             data: { image },

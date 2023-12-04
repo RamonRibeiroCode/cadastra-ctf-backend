@@ -1,7 +1,7 @@
 import { type Request, type Response } from 'express';
 import { type $Enums, Prisma } from '@prisma/client';
 import { prisma } from '../prisma.client';
-import { StorageProvider } from '@providers/StorageProvider';
+import { S3StorageProvider } from '@providers/S3StorageProvider';
 import { HashProvider } from '@providers/HashProvider';
 import { AppError } from '@errors/AppError';
 
@@ -27,11 +27,10 @@ type Activity = {
 
 export class UserController {
   private readonly hashProvider = new HashProvider();
-  private readonly storageProvider = new StorageProvider();
+  private readonly storageProvider = new S3StorageProvider();
 
   public async register(request: Request, response: Response): Promise<void> {
     const { name, email, password } = request.body;
-    const avatar = request.file?.filename ?? '';
     const passwordHash = await this.hashProvider.generateHash(password);
 
     try {
@@ -46,11 +45,15 @@ export class UserController {
         },
       });
 
-      if (avatar !== '') {
-        await Promise.all([
-          this.storageProvider.saveFile(avatar),
-          prisma.user.update({ where: { id: user.id }, data: { avatar } }),
-        ]);
+      if (request.file) {
+        const avatarUrl = await this.storageProvider.upload(request.file);
+
+        console.log(avatarUrl);
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { avatar: avatarUrl },
+        });
       }
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -67,20 +70,24 @@ export class UserController {
     const userId = request.user.id;
 
     const { name } = request.body;
-    const avatar = request.file?.filename ?? '';
 
     try {
-      if (avatar !== '') {
+      if (request.file) {
         const user = await prisma.user.findUnique({
           select: { avatar: true },
           where: { id: userId },
         });
 
-        await Promise.all([
-          this.storageProvider.deleteFile(user?.avatar ?? ''),
-          this.storageProvider.saveFile(avatar),
-          prisma.user.update({ where: { id: userId }, data: { avatar } }),
-        ]);
+        if (user?.avatar) {
+          await this.storageProvider.delete(user?.avatar ?? '');
+        }
+
+        const avatarUrl = await this.storageProvider.upload(request.file);
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: { avatar: avatarUrl },
+        });
       }
 
       const updateUser = await prisma.user.update({
@@ -102,7 +109,13 @@ export class UserController {
     const userId = request.user.id;
 
     const user = await prisma.user.findUnique({
-      select: { name: true, email: true, avatarUrl: true, points: true },
+      select: {
+        name: true,
+        email: true,
+        avatarUrl: true,
+        points: true,
+        avatar: true,
+      },
       where: { id: userId },
     });
 

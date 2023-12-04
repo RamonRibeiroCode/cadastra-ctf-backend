@@ -8,9 +8,6 @@ import cors from 'cors';
 
 import { router } from '@routes/routes';
 import { AppError } from '@errors/AppError';
-import { storageConfig } from '@config/storage';
-
-const { uploads } = storageConfig.folders;
 
 const app = express();
 app.use(express.json());
@@ -18,7 +15,6 @@ app.use(express.json());
 app.use(cors());
 app.use(router);
 app.disable('x-powered-by');
-app.use('/files', express.static(uploads));
 
 app.use((err: Error, _: Request, response: Response, next: NextFunction) => {
   if (err instanceof AppError) {

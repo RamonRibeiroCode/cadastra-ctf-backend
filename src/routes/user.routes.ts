@@ -1,14 +1,16 @@
 import { Router } from 'express';
-import multer from 'multer';
 
 import { UserController as UserControllerClass } from '@controllers/UserController';
-import { storageConfig } from '@config/storage';
 import { validate } from '@middlewares/validateMiddleware';
 import { ensureAuthenticated } from '@middlewares/ensureAuthenticationMiddleware';
 import { userSchema } from '@schemas/userSchema';
+import multer from 'multer';
+
+const storage = multer.memoryStorage();
+
+export const upload = multer({ storage });
 
 const usersRoutes = Router();
-const upload = multer(storageConfig.options.multer);
 
 const UserController = new UserControllerClass();
 

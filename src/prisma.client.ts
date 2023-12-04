@@ -7,9 +7,7 @@ export const prisma = new PrismaClient().$extends({
         needs: { avatar: true },
         compute(user) {
           return user.avatar !== null && user.avatar !== ''
-            ? `${
-                process.env.STORAGE_LOCATION ?? 'http://localhost:3333/files'
-              }/${user.avatar}`
+            ? `${process.env.STORAGE_LOCATION}/${user.avatar}`
             : null;
         },
       },
@@ -19,9 +17,7 @@ export const prisma = new PrismaClient().$extends({
         needs: { image: true },
         compute(challenge) {
           return challenge.image !== null && challenge.image !== ''
-            ? `${
-                process.env.STORAGE_LOCATION ?? 'http://localhost:3333/files'
-              }/${challenge.image}`
+            ? `${process.env.STORAGE_LOCATION}/${challenge.image}`
             : null;
         },
       },
