@@ -60,6 +60,8 @@ export class UserController {
       }
     }
 
+    console.log('teste');
+
     response.status(201).json({ message: 'Usuário registrado com sucesso' });
   }
 
