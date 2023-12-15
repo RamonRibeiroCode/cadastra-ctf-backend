@@ -2,9 +2,11 @@ import { type Request, type Response } from 'express';
 import { prisma } from '../prisma.client';
 import { AppError } from '@errors/AppError';
 import { DayjsDateProvider } from '@providers/DayJsProvider';
+import { S3StorageProvider } from '@providers/S3StorageProvider';
 
 export class ChallengeController {
   private readonly dateProvider = new DayjsDateProvider();
+  private readonly storageProvider = new S3StorageProvider();
 
   public async index(request: Request, response: Response): Promise<void> {
     const userId = request.user.id;
@@ -121,7 +123,6 @@ export class ChallengeController {
   public async create(request: Request, response: Response): Promise<void> {
     const { name, description, url, difficulty, flags, releaseAt } =
       request.body;
-    const image = request.file?.filename ?? '';
 
     try {
       // TODO: VALIDATE DUPLICATED FLAGS NAMES
@@ -143,16 +144,16 @@ export class ChallengeController {
         },
       });
 
-      if (image !== '') {
-        const [updatedChallenge] = await Promise.all([
-          prisma.challenge.update({
-            where: { id: challenge.id },
-            data: { image },
-            include: {
-              flags: true,
-            },
-          }),
-        ]);
+      if (request.file) {
+        const imageUrl = await this.storageProvider.upload(request.file);
+
+        const updatedChallenge = await prisma.challenge.update({
+          where: { id: challenge.id },
+          data: { image: imageUrl },
+          include: {
+            flags: true,
+          },
+        });
 
         challenge = updatedChallenge;
       }
