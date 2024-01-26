@@ -29,8 +29,88 @@ export class UserController {
   private readonly hashProvider = new HashProvider();
   private readonly storageProvider = new S3StorageProvider();
 
-  public async register(request: Request, response: Response): Promise<void> {
-    const { name, email, password } = request.body;
+  public async index(_: Request, response: Response): Promise<void> {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        points: true,
+        avatarUrl: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+
+    response.status(200).json(users);
+  }
+
+  public async show(request: Request, response: Response): Promise<void> {
+    const { id } = request.params;
+
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        points: true,
+        avatarUrl: true,
+      },
+    });
+
+    if (!user) {
+      throw new AppError('Desafio não encontrado', 404);
+    }
+
+    response.status(200).json(user);
+  }
+
+  public async update(request: Request, response: Response): Promise<void> {
+    const userId = Number(request.params.id);
+
+    const { name, email, points } = request.body;
+
+    try {
+      if (request.file) {
+        const user = await prisma.user.findUnique({
+          select: { avatar: true },
+          where: { id: userId },
+        });
+
+        if (user?.avatar) {
+          await this.storageProvider.delete(user?.avatar ?? '');
+        }
+
+        const avatarUrl = await this.storageProvider.upload(request.file);
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: { avatar: avatarUrl },
+        });
+      }
+
+      const updateUser = await prisma.user.update({
+        where: { id: userId },
+        data: { name, email, points },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarUrl: true,
+          points: true,
+        },
+      });
+
+      response.json(updateUser);
+    } catch (error) {
+      throw new AppError('Falha ao atualizar usuário', 500);
+    }
+  }
+
+  public async create(request: Request, response: Response): Promise<void> {
+    const { name, email, password, role } = request.body;
     const passwordHash = await this.hashProvider.generateHash(password);
 
     try {
@@ -40,15 +120,13 @@ export class UserController {
           email,
           password: passwordHash,
           points: 0,
-          role: 'USER',
+          role: role ?? 'USER',
           avatar: '',
         },
       });
 
       if (request.file) {
         const avatarUrl = await this.storageProvider.upload(request.file);
-
-        console.log(avatarUrl);
 
         await prisma.user.update({
           where: { id: user.id },
@@ -66,7 +144,49 @@ export class UserController {
     response.status(201).json({ message: 'Usuário registrado com sucesso' });
   }
 
-  public async update(request: Request, response: Response): Promise<void> {
+  public async delete(request: Request, response: Response): Promise<void> {
+    const { id } = request.params;
+
+    try {
+      await prisma.user.delete({
+        where: {
+          id: Number(id),
+        },
+      });
+    } catch (error) {
+      throw new AppError('Usuario não encontrado', 404);
+    }
+
+    response.status(200).send();
+  }
+
+  public async showProfile(
+    request: Request,
+    response: Response
+  ): Promise<void> {
+    const userId = request.user.id;
+
+    const user = await prisma.user.findUnique({
+      select: {
+        name: true,
+        email: true,
+        avatarUrl: true,
+        points: true,
+        avatar: true,
+      },
+      where: { id: userId },
+    });
+
+    if (user === null)
+      response.status(404).json({ message: 'Usuário não encontrado' });
+
+    response.json(user);
+  }
+
+  public async updateProfile(
+    request: Request,
+    response: Response
+  ): Promise<void> {
     const userId = request.user.id;
 
     const { name } = request.body;
@@ -102,29 +222,6 @@ export class UserController {
     }
   }
 
-  public async showProfile(
-    request: Request,
-    response: Response
-  ): Promise<void> {
-    const userId = request.user.id;
-
-    const user = await prisma.user.findUnique({
-      select: {
-        name: true,
-        email: true,
-        avatarUrl: true,
-        points: true,
-        avatar: true,
-      },
-      where: { id: userId },
-    });
-
-    if (user === null)
-      response.status(404).json({ message: 'Usuário não encontrado' });
-
-    response.json(user);
-  }
-
   public async scoreboard(_: Request, response: Response): Promise<void> {
     const usersScore = await prisma.user.findMany({
       select: {
@@ -158,9 +255,11 @@ export class UserController {
 
   public async maxPoints(_: Request, response: Response): Promise<void> {
     const allFlags = await prisma.flag.findMany();
+
     const allFlagPoints = allFlags.reduce((accumulator, flag) => {
       return accumulator + flag.points;
     }, 0);
+
     const maxPoints = Math.round(allFlagPoints * 1.1);
 
     response.status(200).json({ maxPoints });

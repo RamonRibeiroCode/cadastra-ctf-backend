@@ -8,7 +8,7 @@ interface IPayload {
   role: 'ADMIN' | 'USER';
 }
 
-export async function idAdmin(
+export async function isAdmin(
   request: Request,
   response: Response,
   next: NextFunction

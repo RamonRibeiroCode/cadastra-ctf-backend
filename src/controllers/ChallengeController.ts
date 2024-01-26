@@ -283,4 +283,14 @@ export class ChallengeController {
       throw new AppError('Falha ao cadastrar o desafio', 500);
     }
   }
+
+  public async adminIndex(request: Request, response: Response): Promise<void> {
+    const challenges = await prisma.challenge.findMany({
+      include: {
+        flags: true,
+      },
+    });
+
+    response.status(200).json(challenges);
+  }
 }
