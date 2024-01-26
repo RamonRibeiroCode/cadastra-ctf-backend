@@ -2,7 +2,6 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { validate } from '@middlewares/validateMiddleware';
-import { ensureAuthenticated } from '@middlewares/ensureAuthenticationMiddleware';
 import { challengeSchema } from '@schemas/challengeSchema';
 import { isAdmin } from '@middlewares/isAdminMiddleware';
 import { userSchema } from '@schemas/userSchema';
@@ -18,7 +17,6 @@ const adminRoutes = Router();
 
 adminRoutes.get(
   '/challenges',
-  ensureAuthenticated,
   isAdmin,
   ChallengeController.adminIndex.bind(ChallengeController)
 );
@@ -26,7 +24,6 @@ adminRoutes.get(
 adminRoutes.post(
   '/challenges',
   upload.single('image'),
-  ensureAuthenticated,
   isAdmin,
   validate(challengeSchema.create),
   ChallengeController.create.bind(ChallengeController)
@@ -34,23 +31,16 @@ adminRoutes.post(
 
 adminRoutes.delete(
   '/challenges/:id',
-  ensureAuthenticated,
   isAdmin,
   ChallengeController.delete.bind(ChallengeController)
 );
 
 // USER ROUTES
 
-adminRoutes.get(
-  '/users',
-  ensureAuthenticated,
-  isAdmin,
-  UserController.index.bind(UserController)
-);
+adminRoutes.get('/users', isAdmin, UserController.index.bind(UserController));
 
 adminRoutes.get(
   '/users/:id',
-  ensureAuthenticated,
   isAdmin,
   UserController.show.bind(UserController)
 );
@@ -58,7 +48,6 @@ adminRoutes.get(
 adminRoutes.post(
   '/users',
   upload.single('avatar'),
-  ensureAuthenticated,
   isAdmin,
   validate(userSchema.register),
   UserController.create.bind(UserController)
@@ -67,7 +56,6 @@ adminRoutes.post(
 adminRoutes.put(
   '/users/:id',
   upload.single('avatar'),
-  ensureAuthenticated,
   isAdmin,
   validate(userSchema.update),
   UserController.update.bind(UserController)
@@ -75,7 +63,6 @@ adminRoutes.put(
 
 adminRoutes.delete(
   '/users/:id',
-  ensureAuthenticated,
   isAdmin,
   UserController.delete.bind(UserController)
 );
