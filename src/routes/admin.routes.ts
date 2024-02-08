@@ -21,12 +21,24 @@ adminRoutes.get(
   ChallengeController.adminIndex.bind(ChallengeController)
 );
 
+adminRoutes.get(
+  '/challenges/:id',
+  isAdmin,
+  ChallengeController.adminShow.bind(ChallengeController)
+);
+
 adminRoutes.post(
   '/challenges',
   upload.single('image'),
   isAdmin,
   validate(challengeSchema.create),
   ChallengeController.create.bind(ChallengeController)
+);
+
+adminRoutes.put(
+  '/challenges/:id',
+  isAdmin,
+  ChallengeController.update.bind(ChallengeController)
 );
 
 adminRoutes.delete(

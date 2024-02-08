@@ -3,6 +3,7 @@ import { prisma } from '../prisma.client';
 import { AppError } from '@errors/AppError';
 import { DayjsDateProvider } from '@providers/DayJsProvider';
 import { S3StorageProvider } from '@providers/S3StorageProvider';
+import { Flag } from '@prisma/client';
 
 export class ChallengeController {
   private readonly dateProvider = new DayjsDateProvider();
@@ -104,22 +105,6 @@ export class ChallengeController {
     });
   }
 
-  public async delete(request: Request, response: Response): Promise<void> {
-    const { id } = request.params;
-
-    try {
-      await prisma.challenge.delete({
-        where: {
-          id: Number(id),
-        },
-      });
-    } catch (error) {
-      throw new AppError('Desafio não encontrado', 404);
-    }
-
-    response.status(200).send();
-  }
-
   public async create(request: Request, response: Response): Promise<void> {
     const { name, description, url, difficulty, flags, releaseAt } =
       request.body;
@@ -162,6 +147,84 @@ export class ChallengeController {
     } catch (error) {
       throw new AppError('Falha ao cadastrar o desafio', 500);
     }
+  }
+
+  public async update(request: Request, response: Response): Promise<void> {
+    const { id } = request.params;
+
+    let {
+      name,
+      description,
+      url,
+      difficulty,
+      flags,
+      releaseAt,
+      flagWasEdited,
+    } = request.body;
+
+    flagWasEdited = true;
+
+    const parsedFlags: Flag[] = JSON.parse(flags);
+
+    try {
+      // TODO: VALIDATE DUPLICATED FLAGS NAMES
+      let challenge = await prisma.challenge.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          name,
+          description,
+          url,
+          difficulty,
+          releaseAt,
+        },
+      });
+
+      if (request.file) {
+        const imageUrl = await this.storageProvider.upload(request.file);
+
+        const fileUpdatedChallenge = await prisma.challenge.update({
+          where: { id: challenge.id },
+          data: { image: imageUrl },
+        });
+
+        challenge = fileUpdatedChallenge;
+      }
+
+      if (flagWasEdited) {
+        await prisma.flag.deleteMany({
+          where: { challengeId: Number(id) },
+        });
+
+        await prisma.flag.createMany({
+          data: parsedFlags.map((parsedFlag) => ({
+            ...parsedFlag,
+            challengeId: Number(id),
+          })),
+        });
+      }
+
+      response.status(201).json(challenge);
+    } catch (error) {
+      throw new AppError('Falha ao atualizar o desafio', 500);
+    }
+  }
+
+  public async delete(request: Request, response: Response): Promise<void> {
+    const { id } = request.params;
+
+    try {
+      await prisma.challenge.delete({
+        where: {
+          id: Number(id),
+        },
+      });
+    } catch (error) {
+      throw new AppError('Desafio não encontrado', 404);
+    }
+
+    response.status(200).send();
   }
 
   public async submitFlag(request: Request, response: Response): Promise<void> {
@@ -292,5 +355,22 @@ export class ChallengeController {
     });
 
     response.status(200).json(challenges);
+  }
+
+  public async adminShow(request: Request, response: Response): Promise<void> {
+    const { id } = request.params;
+
+    const challenge = await prisma.challenge.findUnique({
+      where: { id: Number(id) },
+      include: {
+        flags: true,
+      },
+    });
+
+    if (!challenge) {
+      throw new AppError('Desafio não encontrado', 404);
+    }
+
+    response.status(200).json(challenge);
   }
 }
