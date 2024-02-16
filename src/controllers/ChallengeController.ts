@@ -162,8 +162,6 @@ export class ChallengeController {
       flagWasEdited,
     } = request.body;
 
-    flagWasEdited = true;
-
     const parsedFlags: Flag[] = JSON.parse(flags);
 
     try {

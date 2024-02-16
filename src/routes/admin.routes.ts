@@ -37,6 +37,7 @@ adminRoutes.post(
 
 adminRoutes.put(
   '/challenges/:id',
+  upload.single('image'),
   isAdmin,
   ChallengeController.update.bind(ChallengeController)
 );
