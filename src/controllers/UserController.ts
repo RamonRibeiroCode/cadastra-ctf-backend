@@ -160,6 +160,30 @@ export class UserController {
     response.status(200).send();
   }
 
+  public async passwordReset(
+    request: Request,
+    response: Response
+  ): Promise<void> {
+    const { id } = request.params;
+
+    const passwordHash = await this.hashProvider.generateHash('654321');
+
+    try {
+      await prisma.user.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          password: passwordHash,
+        },
+      });
+    } catch (error) {
+      throw new AppError('Usuario não encontrado', 404);
+    }
+
+    response.status(200).send();
+  }
+
   public async showProfile(
     request: Request,
     response: Response

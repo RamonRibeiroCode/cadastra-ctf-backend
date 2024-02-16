@@ -80,4 +80,10 @@ adminRoutes.delete(
   UserController.delete.bind(UserController)
 );
 
+adminRoutes.post(
+  '/users/:id/password-reset',
+  isAdmin,
+  UserController.passwordReset.bind(UserController)
+);
+
 export { adminRoutes };
