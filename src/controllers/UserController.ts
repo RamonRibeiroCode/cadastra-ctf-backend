@@ -57,6 +57,7 @@ export class UserController {
         email: true,
         points: true,
         avatarUrl: true,
+        role: true,
       },
     });
 
@@ -70,7 +71,7 @@ export class UserController {
   public async update(request: Request, response: Response): Promise<void> {
     const userId = Number(request.params.id);
 
-    const { name, email, points } = request.body;
+    const { name, email, points, role } = request.body;
 
     try {
       if (request.file) {
@@ -93,7 +94,7 @@ export class UserController {
 
       const updateUser = await prisma.user.update({
         where: { id: userId },
-        data: { name, email, points },
+        data: { name, email, points, role },
         select: {
           id: true,
           name: true,
