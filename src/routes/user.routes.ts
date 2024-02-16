@@ -24,6 +24,13 @@ usersRoutes.put(
   UserController.updateProfile.bind(UserController)
 );
 
+usersRoutes.patch(
+  '/profile/password',
+  ensureAuthenticated,
+  validate(userSchema.updatePassword),
+  UserController.updateProfilePassword.bind(UserController)
+);
+
 usersRoutes.get(
   '/scoreboard',
   ensureAuthenticated,

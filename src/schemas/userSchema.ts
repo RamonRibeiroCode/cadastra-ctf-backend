@@ -18,10 +18,9 @@ export const userSchema = {
         .email('Formato inválido para e-mail'),
       password: z
         .string({
-          required_error: 'O campo senha é obrigatório',
+          required_error: 'O campo password é obrigatório',
         })
-        .trim()
-        .min(6, 'A senha precisa ter no mínimo 6 caracteres.'),
+        .trim(),
     }),
   }),
   update: z.object({
@@ -32,6 +31,16 @@ export const userSchema = {
         })
         .trim()
         .min(1, 'O campo nome é obrigatório.'),
+    }),
+  }),
+  updatePassword: z.object({
+    body: z.object({
+      password: z
+        .string({
+          required_error: 'O campo password é obrigatório.',
+        })
+        .trim()
+        .min(1, 'O campo password é obrigatório.'),
     }),
   }),
 };

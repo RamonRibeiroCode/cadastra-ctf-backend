@@ -246,6 +246,29 @@ export class UserController {
     }
   }
 
+  public async updateProfilePassword(
+    request: Request,
+    response: Response
+  ): Promise<void> {
+    const userId = request.user.id;
+
+    const { password } = request.body;
+
+    const passwordHash = await this.hashProvider.generateHash(password);
+
+    try {
+      const updateUser = await prisma.user.update({
+        where: { id: userId },
+        data: { password: passwordHash },
+        select: { name: true, email: true, avatarUrl: true, points: true },
+      });
+
+      response.json(updateUser);
+    } catch (error) {
+      throw new AppError('Falha ao atualizar senha do usuário', 500);
+    }
+  }
+
   public async scoreboard(_: Request, response: Response): Promise<void> {
     const usersScore = await prisma.user.findMany({
       select: {
