@@ -5,7 +5,7 @@ services:
     image: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: 'm3-ctf'
+      MYSQL_DATABASE: 'cadastra-ctf'
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
