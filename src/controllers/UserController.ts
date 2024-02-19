@@ -94,7 +94,7 @@ export class UserController {
 
       const updateUser = await prisma.user.update({
         where: { id: userId },
-        data: { name, email, points, role },
+        data: { name, email, points: Number(points), role },
         select: {
           id: true,
           name: true,
@@ -111,7 +111,7 @@ export class UserController {
   }
 
   public async create(request: Request, response: Response): Promise<void> {
-    const { name, email, password, role } = request.body;
+    const { name, email, password, role, points } = request.body;
     const passwordHash = await this.hashProvider.generateHash(password);
 
     try {
@@ -120,7 +120,7 @@ export class UserController {
           name,
           email,
           password: passwordHash,
-          points: 0,
+          points: Number(points),
           role: role ?? 'USER',
           avatar: '',
         },
