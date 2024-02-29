@@ -8,7 +8,7 @@ import { userSchema } from '@schemas/userSchema';
 
 const storage = multer.memoryStorage();
 
-export const upload = multer({ storage });
+export const upload = multer({ storage, limits: { fileSize: 1048576 * 5 } });
 
 const usersRoutes = Router();
 

@@ -9,7 +9,7 @@ import { ChallengeController } from './challenge.routes';
 import { UserController } from './user.routes';
 
 const storage = multer.memoryStorage();
-export const upload = multer({ storage });
+export const upload = multer({ storage, limits: { fileSize: 1048576 * 5 } });
 
 const adminRoutes = Router();
 

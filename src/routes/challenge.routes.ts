@@ -1,11 +1,7 @@
 import { Router } from 'express';
-import multer from 'multer';
 
 import { ChallengeController as ChallengeControllerClass } from '@controllers/ChallengeController';
 import { ensureAuthenticated } from '@middlewares/ensureAuthenticationMiddleware';
-
-const storage = multer.memoryStorage();
-export const upload = multer({ storage });
 
 const challengeRoutes = Router();
 
