@@ -3,7 +3,7 @@ import { prisma } from '../prisma.client';
 import { AppError } from '@errors/AppError';
 import { DayjsDateProvider } from '@providers/DayJsProvider';
 import { S3StorageProvider } from '@providers/S3StorageProvider';
-import { Flag } from '@prisma/client';
+import { type Flag } from '@prisma/client';
 
 export class ChallengeController {
   private readonly dateProvider = new DayjsDateProvider();
@@ -152,7 +152,7 @@ export class ChallengeController {
   public async update(request: Request, response: Response): Promise<void> {
     const { id } = request.params;
 
-    let {
+    const {
       name,
       description,
       url,

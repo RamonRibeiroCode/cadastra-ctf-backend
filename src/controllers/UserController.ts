@@ -285,6 +285,11 @@ export class UserController {
       orderBy: {
         points: 'desc',
       },
+      where: {
+        role: {
+          not: 'ADMIN',
+        },
+      },
     });
 
     const allFlags = await prisma.flag.findMany();
