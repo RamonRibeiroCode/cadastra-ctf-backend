@@ -112,7 +112,10 @@ export class UserController {
 
   public async create(request: Request, response: Response): Promise<void> {
     const { name, email, password, role, points } = request.body;
-    const passwordHash = await this.hashProvider.generateHash(password);
+
+    const userPassword = password || '654321';
+
+    const passwordHash = await this.hashProvider.generateHash(userPassword);
 
     try {
       const user = await prisma.user.create({
@@ -296,7 +299,7 @@ export class UserController {
     const allFlagPoints = allFlags.reduce((accumulator, flag) => {
       return accumulator + flag.points;
     }, 0);
-    const maxPoints = Math.round(allFlagPoints * 1.1);
+    const maxPoints = Math.round(allFlagPoints * 2);
 
     const scoreboard = usersScore.map((userScore) => ({
       ...userScore,
@@ -313,7 +316,7 @@ export class UserController {
       return accumulator + flag.points;
     }, 0);
 
-    const maxPoints = Math.round(allFlagPoints * 1.1);
+    const maxPoints = Math.round(allFlagPoints * 2);
 
     response.status(200).json({ maxPoints });
   }

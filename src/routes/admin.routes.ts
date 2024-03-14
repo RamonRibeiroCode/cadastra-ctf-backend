@@ -7,9 +7,14 @@ import { isAdmin } from '@middlewares/isAdminMiddleware';
 import { userSchema } from '@schemas/userSchema';
 import { ChallengeController } from './challenge.routes';
 import { UserController } from './user.routes';
+import { imageFilter } from 'utils/upload';
 
 const storage = multer.memoryStorage();
-export const upload = multer({ storage, limits: { fileSize: 1048576 * 5 } });
+export const upload = multer({
+  storage,
+  limits: { fileSize: 1048576 * 5 },
+  fileFilter: imageFilter,
+});
 
 const adminRoutes = Router();
 

@@ -361,7 +361,7 @@ export class ChallengeController {
 
       response.status(200).json({ message: 'Flag resgatada com sucesso' });
     } catch (error) {
-      throw new AppError('Falha ao cadastrar o desafio', 500);
+      throw new AppError('Erro ao resgatar flag', 500);
     }
   }
 
