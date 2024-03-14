@@ -290,6 +290,12 @@ export class ChallengeController {
     const isFirstBlood =
       challenge.scoreboard.length === 0 && isSubmitingLastFlag;
 
+    const isSecondPlace =
+      challenge.scoreboard.length === 1 && isSubmitingLastFlag;
+
+    const isThirdPlace =
+      challenge.scoreboard.length === 2 && isSubmitingLastFlag;
+
     try {
       if (isFirstBlood) {
         await prisma.challenge.update({
@@ -319,13 +325,27 @@ export class ChallengeController {
 
       let pointsToReedem = flagMatch.points;
 
-      if (isFirstBlood) {
-        const allFlagsPoints = flags.reduce((accumulator, flag) => {
-          return accumulator + flag.points;
-        }, 0);
+      const allFlagsPoints = flags.reduce((accumulator, flag) => {
+        return accumulator + flag.points;
+      }, 0);
 
-        // First blood gets a 10% bonus
-        const bonusPoints = allFlagsPoints * 0.1;
+      if (isFirstBlood) {
+        // First blood gets a 100% bonus
+        const bonusPoints = allFlagsPoints;
+
+        pointsToReedem = pointsToReedem + bonusPoints;
+      }
+
+      if (isSecondPlace) {
+        // SecondPlace gets a 50% bonus
+        const bonusPoints = allFlagsPoints * 0.5;
+
+        pointsToReedem = pointsToReedem + bonusPoints;
+      }
+
+      if (isThirdPlace) {
+        // ThirdPlace gets a 20% bonus
+        const bonusPoints = allFlagsPoints * 0.2;
 
         pointsToReedem = pointsToReedem + bonusPoints;
       }
