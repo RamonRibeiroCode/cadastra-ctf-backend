@@ -5,7 +5,7 @@ import { UserController as UserControllerClass } from '@controllers/UserControll
 import { validate } from '@middlewares/validateMiddleware';
 import { ensureAuthenticated } from '@middlewares/ensureAuthenticationMiddleware';
 import { userSchema } from '@schemas/userSchema';
-import { imageFilter } from 'utils/upload';
+import { imageFilter } from '../utils/upload';
 
 const storage = multer.memoryStorage();
 
